@@ -1,0 +1,9 @@
+
+streamlit
+requests
+pandas
+altair
+folium
+streamlit-folium
+Pillow
+matplotlib
