@@ -46,8 +46,8 @@ rpr_dashboard/
 
 ```bash
 # Clone the repository
-git clone  https://github.com/SajjadHussain-UniBonn/rpr-dashboard.git
-cd rpr_dashboard
+git clone  [https://github.com/MakanAKaregar/gnss4surfacewater/]
+cd gnss4surfacewater
 
 # Install dependencies
 pip install -r requirements.txt
