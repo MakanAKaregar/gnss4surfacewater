@@ -6,6 +6,7 @@ from streamlit_folium import st_folium
 from config import (
     PAGE_TITLE, PAGE_LAYOUT,
     PATH_UNI_BONN, PATH_EO_AFRICA, PATH_DETECT, PATH_TRA,
+    PATH_IGG, PATH_UPDILIMAN, PATH_NIC_CAMERON,
     HEADER_LOGO_WIDTH, FOOTER_LOGO_WIDTH,
     MAP_HEIGHT_PX
 )
@@ -25,10 +26,24 @@ st.set_page_config(page_title=PAGE_TITLE, layout=PAGE_LAYOUT)
 # =========================
 st.markdown("""
 <style>
-  .block-container { padding-top: .8rem; padding-bottom: 0; }
+.rpr-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #ffffff !important;           /* white fill, force override */
+    -webkit-text-stroke: 0.3px #1d3b72;    /* dark blue outline */
+    text-shadow:
+        0 0 2px #1d3b72,
+        0 0 4px #1d3b72;                 /* subtle glow */
+    margin: 0;
+    padding: 0;
+}
+</style>
+""", unsafe_allow_html=True)
 
-  /* Title styling (bigger, bolder) */
-  .rpr-title { margin:0; line-height:1.15; font-size:2.2rem; font-weight:800; }
+
+st.markdown("""
+<style>
+  .block-container { padding-top: 0.8rem; padding-bottom: 0; }
 
   /* Small utility spacer used above charts */
   .chart-spacer{ height:12px; }
@@ -57,37 +72,59 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+
+
+
 # =========================
-# HEADER (title on left, radio "tabs" on right)
+# HEADER 
 # =========================
-uni_bonn_b64  = safe_b64(st, PATH_UNI_BONN,  HEADER_LOGO_WIDTH)
-eo_africa_b64 = safe_b64(st, PATH_EO_AFRICA, FOOTER_LOGO_WIDTH)
-detect_b64    = safe_b64(st, PATH_DETECT,    FOOTER_LOGO_WIDTH)
-tra_b64       = safe_b64(st, PATH_TRA,       FOOTER_LOGO_WIDTH)
+uni_bonn_b64      = safe_b64(st, PATH_UNI_BONN,  HEADER_LOGO_WIDTH)
+eo_africa_b64     = safe_b64(st, PATH_EO_AFRICA, FOOTER_LOGO_WIDTH)
+detect_b64        = safe_b64(st, PATH_DETECT,    FOOTER_LOGO_WIDTH)
+tra_b64           = safe_b64(st, PATH_TRA,       FOOTER_LOGO_WIDTH)
+igg_b64           = safe_b64(st, PATH_IGG,           FOOTER_LOGO_WIDTH)
+up_diliman_b64    = safe_b64(st, PATH_UPDILIMAN,     FOOTER_LOGO_WIDTH)
+nic_cameron_b64   = safe_b64(st, PATH_NIC_CAMERON,   FOOTER_LOGO_WIDTH)
 
 col_title, col_tabs = st.columns([3, 3], gap="large")
+
+
 
 with col_title:
     st.markdown(
         f"""
-        <div style="display:flex;align-items:center;gap:.6rem;">
-          {'<img src="data:image/png;base64,' + uni_bonn_b64 + f'" width="{HEADER_LOGO_WIDTH}"/>' if uni_bonn_b64 else ''}
-          <h1 class="rpr-title">RPR Dashboard</h1>
+        <div>
+          <h1 class="rpr-title">GNSS4SurfaceWater</h1>
         </div>
         """,
         unsafe_allow_html=True
     )
 
+
 with col_tabs:
-    # Horizontal radio used as tabs (stays in the same page; no URL change; no underline)
     tab = st.radio(
-        "Select section",   # keep visible while validating; switch to label_visibility="collapsed" later if you like
+        "Select section", 
         options=["Home", "Data", "Publications", "About", "Contact", "Upload Data"],
+        label_visibility="hidden",
         index=0,
         horizontal=True,
         key="rpr_tabs"
     )
-    st.write("")  # small breathing space under the radio row
+    st.write("")  
+
+st.sidebar.title("GNSS4SurfaceWater")
+with st.sidebar:
+    st.markdown(
+        """
+        <div style="font-size:0.95rem; line-height:1.4;">
+            brings together collective GNSS-based water level measurements.
+            This platform provides an open space to share data in surface-water monitoring, particularly using
+            low-cost GNSS Interferometric Reflectometry (GNSS-IR) sensors such as the Raspberry Pi Reflector,
+            GNSS buoys, and other affordable solutions.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 
 # =========================
@@ -103,6 +140,8 @@ st.markdown("""
 </style>
 <div class="separator-line"></div>
 """, unsafe_allow_html=True)
+
+
 # =========================
 # DATA LOAD (Remote WebDAV)
 # =========================
@@ -118,10 +157,14 @@ if not stations:
 # =========================
 # CONTENT (Switching in-page by radio)
 # =========================
+
+#--------------------Home--------------------------
 if tab == "Home":
     # Map full width
     st_folium(build_map(stations), width="100%", height=MAP_HEIGHT_PX)
 
+
+#--------------------Data--------------------------
 elif tab == "Data":
     left, right = st.columns([1, 4], gap="large")
 
@@ -229,6 +272,8 @@ elif tab == "Data":
                 ).configure_title(offset=12)  # adds extra gap below an Altair chart title if you set one
                 st.altair_chart(base_chart.interactive(), use_container_width=True)
 
+
+#--------------------Publications--------------------------
 elif tab == "Publications":
     st.header("Publications:")
     st.markdown("""
@@ -241,14 +286,30 @@ elif tab == "Publications":
   *AGU Fall Meeting Abstracts*, 2025.
 """)
 
+
+
+#--------------------About--------------------------
 elif tab == "About":
-    st.header("About:")
+    # st.header("About:")
     st.write(
-        "The RPR Dashboard visualizes water-level observations from GNSS-IR stations "
-        "and provides interactive tools for exploring time series and metadata. "
-        "Built by the University of Bonn team."
+        "GNSS-IR was first used in an opportunistic way: environmental variables were extracted from geodetic GNSS reference "
+        "stations that were never designed to measure reflected signals. Today, the field has moved from this indirect use toward "
+        "purpose-built, low-cost GNSS-IR sensing. Affordable sensors such as the Raspberry Pi Reflector (RPR) and other GNSS-"
+        "IR devices are now specifically designed and positioned to observe water surfaces under controlled conditions with the "
+        "antenna orientation and geometry optimized from the start. This marks a shift from simply using reflections when they "
+        "happen to occur to intentionally measuring them for hydrological applications."
+    )
+    st.write(
+        "At the Institute of Geodesy and Geoinformation at the University of Bonn, an international network of RPR GNSS-IR "
+        "sensors is operated across a few research projects. GNSS4SurfaceWater serves as a platform for sharing water-level "
+        "time series from these affordable GNSS-IR sensors following open-science hardware and software practices and aligned "
+        "with FAIR principles The platform visualizes water-level observations from GNSS stations and provides interactive tools "
+        "for exploring time series and metadata. The community is encouraged to contribute to this initiative by uploading their "
+        "own time series in the supported format. For instructions on how to upload data, please refer to the Data Upload section."
     )
 
+
+#--------------------Contact--------------------------
 elif tab == "Contact":
     st.header("Contact:")
     st.markdown("""
@@ -259,6 +320,9 @@ Astronomical, Physical and Mathematical Geodesy Group (APMG)
 **Email:** [karegar@uni-bonn.de](mailto:karegar@uni-bonn.de)
 """)
 
+
+
+#--------------------Upload Data--------------------------
 elif tab == "Upload Data":
     st.header("Upload Data:")
     st.info("Upload a CSV or TXT file to preview and (optionally) append to your repository.")
@@ -276,6 +340,7 @@ elif tab == "Upload Data":
             st.code(text[:5000] + ("\n... (truncated)" if len(text) > 5000 else ""))
 
 
+
 # =========================
 # FOOTER
 # =========================
@@ -284,11 +349,15 @@ st.markdown(
     f"""
     <div class="footer">
       <div class="footer-left">
-        <span class="at">@</span>Developed by Sajjad Hussain
+        <div class="footer-logos">
+          {'<img alt="University of Bonn" src="data:image/png;base64,' + uni_bonn_b64 + '"/>' if uni_bonn_b64 else ''}
+          {'<img alt="IGG" src="data:image/png;base64,' + igg_b64 + '"/>' if igg_b64 else ''}
+        </div>
       </div>
       <div class="footer-right">
-        <span class="caption">in collaboration with</span>
         <div class="footer-logos">
+          {'<img alt="NIC Cameron" src="data:image/png;base64,' + nic_cameron_b64 + '"/>' if nic_cameron_b64 else ''}
+          {'<img alt="UP Diliman" src="data:image/png;base64,' + up_diliman_b64 + '"/>' if up_diliman_b64 else ''}
           {'<img alt="EO Africa" src="data:image/png;base64,' + eo_africa_b64 + '"/>' if eo_africa_b64 else ''}
           {'<img alt="DETECT" src="data:image/png;base64,' + detect_b64 + '"/>' if detect_b64 else ''}
           {'<img alt="TRA Sustainable Futures" src="data:image/png;base64,' + tra_b64 + '"/>' if tra_b64 else ''}
@@ -298,6 +367,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 
 
 
