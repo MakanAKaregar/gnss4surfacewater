@@ -294,16 +294,16 @@ elif tab == "About":
     st.write(
         "GNSS-IR was first used in an opportunistic way: environmental variables were extracted from geodetic GNSS reference "
         "stations that were never designed to measure reflected signals. Today, the field has moved from this indirect use toward "
-        "purpose-built, low-cost GNSS-IR sensing. Affordable sensors such as the Raspberry Pi Reflector (RPR) and other GNSS-"
+        "purpose-built, low-cost GNSS-IR sensing. Affordable sensors such as the [Raspberry Pi Reflector](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2021WR031713) [(RPR)](https://github.com/MakanAKaregar/RPR/tree/v2.0.0) and other GNSS-"
         "IR devices are now specifically designed and positioned to observe water surfaces under controlled conditions with the "
         "antenna orientation and geometry optimized from the start. This marks a shift from simply using reflections when they "
         "happen to occur to intentionally measuring them for hydrological applications."
     )
     st.write(
-        "At the Institute of Geodesy and Geoinformation at the University of Bonn, an international network of RPR GNSS-IR "
+        "At the [Institute of Geodesy and Geoinformation](https://www.igg.uni-bonn.de/apmg/de) at the University of Bonn, an international network of RPR GNSS-IR "
         "sensors is operated across a few research projects. GNSS4SurfaceWater serves as a platform for sharing water-level "
         "time series from these affordable GNSS-IR sensors following open-science hardware and software practices and aligned "
-        "with FAIR principles The platform visualizes water-level observations from GNSS stations and provides interactive tools "
+        "with FAIR principles. The platform visualizes water-level observations from GNSS stations and provides interactive tools "
         "for exploring time series and metadata. The community is encouraged to contribute to this initiative by uploading their "
         "own time series in the supported format. For instructions on how to upload data, please refer to the Data Upload section."
     )
@@ -313,8 +313,10 @@ elif tab == "About":
 elif tab == "Contact":
     st.header("Contact:")
     st.markdown("""
-**Institute for Geodesy and Geoinformation (IGG)**  
-Astronomical, Physical and Mathematical Geodesy Group (APMG)  
+**Dr. Makan Karegar**  
+Institute for Geodesy and Geoinformation (IGG)  
+Astronomical, Physical and Mathematical Geodesy Group (APMG),
+University of Bonn  
 **Address:** Room 2.003, Nußallee 15, 53115, Bonn, Germany.  
 **Tel:** [+49 (0) 228 73-6160](tel:+49228736160)  
 **Email:** [karegar@uni-bonn.de](mailto:karegar@uni-bonn.de)
