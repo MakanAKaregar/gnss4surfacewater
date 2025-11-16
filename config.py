@@ -8,10 +8,13 @@ PAGE_LAYOUT = "wide"
 
 # -------- Logos --------
 LOGO_DIR = Path("Logos")
-PATH_UNI_BONN  = LOGO_DIR / "tUN_yzk2_400x400.jpg"
-PATH_EO_AFRICA = LOGO_DIR / "EOAFRICA-logo-.png"
-PATH_DETECT    = LOGO_DIR / "Logo_DETECT_transparent_retina.png"
-PATH_TRA       = LOGO_DIR / "Screenshot_2025-09-29_16-57-12.png"
+PATH_UNI_BONN  = LOGO_DIR / "uni_bonn.jpg"
+PATH_EO_AFRICA = LOGO_DIR / "eoafrica.png"
+PATH_DETECT    = LOGO_DIR / "transparent_retina.png"
+PATH_TRA       = LOGO_DIR / "tra.png"
+PATH_IGG       = LOGO_DIR / "igg.png"
+PATH_UPDILIMAN       = LOGO_DIR / "up_diliman.png"
+PATH_NIC_CAMERON       = LOGO_DIR / "nic_cameron.jpeg"
 HEADER_LOGO_WIDTH = 60
 FOOTER_LOGO_WIDTH = 60
 
