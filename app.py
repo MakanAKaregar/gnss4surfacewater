@@ -198,9 +198,9 @@ if not stations:
 
 # Decide map height: medium (max 600)
 try:
-    map_height = min(int(MAP_HEIGHT_PX), 600)
+    map_height = min(int(MAP_HEIGHT_PX), 500)
 except Exception:
-    map_height = 600
+    map_height = 500
 
 
 # =========================
@@ -210,7 +210,7 @@ except Exception:
 #--------------------Home--------------------------
 if st.session_state.active_tab == "Home":
     with st.spinner("Loading map..."):
-        st_folium(build_map(stations), width="100%", height=map_height)
+        st_folium(build_map(stations), width="900", height=map_height)
 
 
 #--------------------Data--------------------------
@@ -325,13 +325,9 @@ elif st.session_state.active_tab == "Data":
 elif st.session_state.active_tab == "Publications":
     st.header("Publications:")
     st.markdown("""
-- **Karegar, M. A., Kusche, J., Geremia‐Nievinski, F., & Larson, K. M. (2022).**  
-  *Raspberry Pi Reflector (RPR): A low‐cost water‐level monitoring system based on GNSS interferometric reflectometry.*  
-  *Water Resources Research*, **58**(12), e2021WR031713.
+- Karegar, M. A., Kusche, J., Geremia‐Nievinski, F., & Larson, K. M. (2022). Raspberry Pi Reflector (RPR): A low‐cost water‐level monitoring system based on GNSS interferometric reflectometry.*Water Resources Research*, 58(12), e2021WR031713.
 
-- **Yap, L., Karegar, M. A., Chen, J., Kusche, J. (2025).**  
-  *GNSS-IR monitoring of coastal and river water levels in Cameroon for Sentinel and SWOT altimetry validation.*  
-  *AGU Fall Meeting Abstracts*, 2025.
+- Yap, L., Karegar, M. A., Chen, J., Kusche, J. (2025). GNSS-IR monitoring of coastal and river water levels in Cameroon for Sentinel and SWOT altimetry validation. *AGU Fall Meeting Abstracts*, 2025.
 """)
 
 
@@ -358,36 +354,95 @@ elif st.session_state.active_tab == "About":
 
 #--------------------Contact--------------------------
 elif st.session_state.active_tab == "Contact":
-    st.header("Contact:")
+    st.header("Contact")
+
     st.markdown("""
-**Institute for Geodesy and Geoinformation (IGG)**  
+**Dr. Makan Karegar**  
+Institute for Geodesy and Geoinformation (IGG)  
 Astronomical, Physical and Mathematical Geodesy Group (APMG)  
-**Address:** Room 2.003, Nußallee 15, 53115, Bonn, Germany.  
+University of Bonn  
+
+**Address:** Room 2.003, Nußallee 15, 53115 Bonn, Germany  
 **Tel:** [+49 (0) 228 73-6160](tel:+49228736160)  
 **Email:** [karegar@uni-bonn.de](mailto:karegar@uni-bonn.de)
-""")
+    """)
+
 
 
 #--------------------Upload Data--------------------------
 elif st.session_state.active_tab == "Upload Data":
-    st.header("Upload Data:")
-    st.info("Upload a CSV or TXT file to preview and (optionally) append to your repository.")
-    upl = st.file_uploader("Choose a CSV/TXT file", type=["csv", "txt"])
-    if upl is not None:
-        try:
-            df = pd.read_csv(upl)
-            st.success("File read as CSV.")
-            st.dataframe(df.head(200), use_container_width=True)
-            st.download_button(
-                "Download a copy (CSV)",
-                df.to_csv(index=False).encode(),
-                file_name="uploaded_preview.csv"
-            )
-        except Exception:
-            upl.seek(0)
-            text = upl.read().decode("utf-8", errors="ignore")
-            st.success("File read as plain text.")
-            st.code(text[:5000] + ("\n... (truncated)" if len(text) > 5000 else ""))
+    st.header("Upload Data")
+
+    st.markdown("""
+    The GNSS4SurfaceWater platform welcomes contributions of GNSS-based water-level time series. To ensure consistency and interoperability, all datasets should follow the **standard GNSS4SurfaceWater text format** described below.
+
+    ### **Notice**
+    All contributed datasets are uploaded **automatically on a regular basis** to the University of Bonn Sciebo cloud storage (**https://uni-bonn.sciebo.de/**).
+
+    To participate in automatic uploads, you need a **Sciebo WebDAV access token**. Please contact **[Makan Karegar](mailto:karegar@uni-bonn.de)** to obtain your personal token.
+
+    ---
+
+    ## **1. File naming convention**
+    All files must follow the naming pattern:
+
+    **`<siteID>_<temporalResolution>.txt`**
+
+    Examples:
+    - `cam4_1h.txt`
+    - `r6gb_30m.txt`
+    - `rpr1_5m.txt`
+
+    ---
+
+    ## **2. Required metadata header**
+    Each file must begin with the following metadata lines, each starting with `#` and appearing **exactly in this order**:
+
+    ```
+    # Station: <4-character ID>
+    # Location: <City/Region>
+    # Latitude: <decimal degrees>
+    # Longitude: <decimal degrees>
+    # Sensor Type: <sensor/platform>
+    # Water Body: <river/lake/coast>
+    # Vertical datum: <datum>
+    # Units: <units>
+    # Provider: <institution(s)>
+    # Access Raw Data: <URL or NaN>
+    # GNSS Receiver: <model>
+    # GNSS Antenna: <model>
+    #
+    ```
+
+    ---
+
+    ## **3. Data table format**
+
+    After the metadata header, include a comma-separated table with the columns:
+
+    - `DateTime` — ISO-8601 format (`YYYY-MM-DDThh:mm:ss`)
+    - `Height` — Water level in the specified units
+
+    Example:
+
+    ```
+    DateTime,Height
+    2025-06-01T18:50:18,47.531
+    2025-06-01T20:09:29,47.767
+    2025-06-01T21:44:33,47.801
+    ```
+
+    ---
+
+    ## **4. Automatic upload workflow**
+
+    Once you obtain your token, you can configure your device or server to:
+
+    1. Generate the data file (`*.txt`) in the required format  
+    2. Name it according to the standard convention  
+    3. Use WebDAV to automatically send the file to the GNSS4SurfaceWater cloud directory  
+       at regular intervals (hourly, daily, or real-time)
+    """)
 
 
 # =========================
