@@ -15,9 +15,7 @@ PATH_TRA           = LOGO_DIR / "tra.png"
 PATH_IGG           = LOGO_DIR / "igg.png"
 PATH_UPDILIMAN     = LOGO_DIR / "up_diliman.png"
 PATH_NIC_CAMERON   = LOGO_DIR / "nic_cameron.jpeg"
-
-# NEW GNSS4SurfaceWater logo
-PATH_GNSS4SW       = LOGO_DIR / "gnss4surfacewater.svg"
+PATH_GNSS4SW       = LOGO_DIR / "gnss4surfacewater.png"
 
 HEADER_LOGO_WIDTH  = 180
 FOOTER_LOGO_WIDTH  = 120
