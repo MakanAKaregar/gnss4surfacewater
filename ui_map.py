@@ -65,13 +65,12 @@ def popup_html_for(sid: str, s: dict) -> str:
 
           <!-- Add the link before the chart -->
           <div style="margin-top:8px;">
-            <a href="https://uni-bonn.sciebo.de/s/pa59z8LHMWWixyp?path=%2Fsolutions"
-              target="_blank"
-              style="color:#0066cc; font-weight:600; text-decoration:none;">
+            <a href="javascript:void(0)"
+              onclick="return false;"
+              style="color:#0066cc; font-weight:600; text-decoration:none; cursor:pointer;">
               Link to raw data →
             </a>
           </div>
-
           {chart_block}
           <div style="margin-top:8px;">{toggle_link}</div>
         </div>
@@ -79,22 +78,6 @@ def popup_html_for(sid: str, s: dict) -> str:
     </div>
     """
     return html
-
-# def build_map(stations_dict: dict) -> folium.Map:
-#     m = folium.Map(location=MAP_INIT_CENTER, zoom_start=MAP_INIT_ZOOM, control_scale=True)
-#     for sid, s in stations_dict.items():
-#         if s["lat"] is None or s["lon"] is None:
-#             continue
-#         html = popup_html_for(sid, s)
-#         iframe = IFrame(html=html, width=700, height=340)
-#         pop = folium.Popup(iframe, max_width=720, min_width=360, parse_html=True)
-#         folium.Marker(
-#             [s["lat"], s["lon"]],
-#             popup=pop,
-#             tooltip=sid,
-#             icon=folium.Icon(color="blue", icon="")
-#         ).add_to(m)
-#     return m
 
 def build_map(stations_dict: dict) -> folium.Map:
     # Create base map (OpenStreetMap by default)

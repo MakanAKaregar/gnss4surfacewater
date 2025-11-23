@@ -6,7 +6,7 @@ from streamlit_folium import st_folium
 from config import (
     PAGE_TITLE, PAGE_LAYOUT,
     PATH_UNI_BONN, PATH_EO_AFRICA, PATH_DETECT, PATH_TRA,
-    PATH_IGG, PATH_UPDILIMAN, PATH_NIC_CAMERON,
+    PATH_IGG, PATH_UPDILIMAN, PATH_NIC_CAMERON,PATH_GNSS4SW,
     HEADER_LOGO_WIDTH, FOOTER_LOGO_WIDTH,
     MAP_HEIGHT_PX
 )
@@ -21,200 +21,211 @@ from ui_map import build_map
 # =========================
 st.set_page_config(page_title=PAGE_TITLE, layout=PAGE_LAYOUT)
 
-
 # =========================
-# SESSION STATE FOR TABS
+# Global STYLES
 # =========================
-if "active_tab" not in st.session_state:
-    st.session_state.active_tab = "Home"
-
-
-# =========================
-# GLOBAL STYLES
-# =========================
-st.markdown(
-    """
+# ---------- GLOBAL CSS FOR YELLOW TABS ----------
+st.markdown("""
 <style>
-.block-container { padding-top: 0.8rem; }
 
-/* Big title */
+/* Yellow rectangular bar */
+.stTabs [data-baseweb="tab-list"] {
+    background-color: #ffdd33 !important;
+    border-radius: 0px !important;      /* rectangular */
+    padding: 4px 12px !important;
+    gap: 0 !important;
+}
+
+/* Tabs */
+.stTabs [data-baseweb="tab"] {
+    background-color: transparent !important;
+    color: #1d3b72 !important;
+    font-weight: 700 !important;        /* <-- BOLD TAB NAMES */
+    font-size: 0.95rem !important;
+    padding: 0.35rem 0.9rem !important;
+    border-radius: 6px !important;      
+}
+
+/* Hover effect */
+.stTabs [data-baseweb="tab"]:hover {
+    background-color: rgba(255,255,255,0.35) !important;
+}
+
+/* Active tab */
+.stTabs [aria-selected="true"] {
+    background-color: rgba(255,255,255,0.65) !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# ---------- GLOBAL CSS For Title text ----------
+st.markdown("""
+<style>
 .rpr-title {
     font-size: 2.5rem;
     font-weight: 800;
-    color: #ffffff !important;
-    -webkit-text-stroke: 0.3px #1d3b72;
-    text-shadow: 0 0 2px #1d3b72, 0 0 4px #1d3b72;
+    color: #ffffff !important;           /* white fill, force override */
+    -webkit-text-stroke: 0.3px #1d3b72;    /* dark blue outline */
+    text-shadow:
+        0 0 2px #1d3b72,
+        0 0 4px #1d3b72;                 /* subtle glow */
     margin: 0;
     padding: 0;
 }
-
-/* Separator line */
-.separator-line {
-    border-top: 1px solid #ccc;
-    margin-top: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-/* Nav bar row */
-.nav-row {
-    margin-bottom: 1.0rem;
-}
-
-/* We style each nav button via its key; base style here */
-.nav-button-base {
-    background-color: #1d3b72;
-    color: #f2f2f2;
-    font-weight: 600;
-    font-size: 0.95rem;
-    border-radius: 6px;
-    border: none;
-    padding: 0.4rem 0.9rem;
-}
-
-/* Footer */
-.footer{
-  display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:.25rem 0;
-}
-.footer-logos{ display:flex; align-items:center; gap:1.2rem; }
-.footer-logos img{ width:60px; height:auto; }
-
-/* Chips / small section headers */
-.h-chip{
-  display:inline-block; background:#e8f4ff; border:1px solid #cfe4ff;
-  padding:4px 10px; border-radius:8px; font-weight:600; font-size:1.05rem;
-  margin:.25rem 0 .5rem 0;
-}
-.meta-paragraph{ color:#333; font-size:0.95rem; line-height:1.55; margin-bottom:.6rem; font-weight:600; }
-
-.chart-spacer{ height:12px; }
-
-@media (max-width: 900px){
-  .footer{ flex-direction:column; align-items:flex-start; gap:.5rem; }
-}
 </style>
-""",
-    unsafe_allow_html=True,
-)
+""", unsafe_allow_html=True)
+
+
+#---------------------------Global css for Header & Footer--------------------------
+st.markdown("""
+<style>
+  .block-container { padding-top: 0; padding-bottom: 0; }
+
+  /* Small utility spacer used above charts */
+  .chart-spacer{ height:12px; }
+
+  /* Footer layout */
+  .footer{ display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:.25rem 0; }
+  .footer-left{ font-size:.95rem; color:#444; line-height:1.3; font-weight:400; display:flex; align-items:center; gap:.35rem; }
+  .footer-left .at{ opacity:.7; font-weight:700; }
+  .footer-right{ display:flex; align-items:center; gap:1rem; flex-wrap:wrap; justify-content:flex-end; }
+  .footer-right .caption{ font-size:.85rem; color:#666; white-space:nowrap; }
+  .footer-logos{ display:flex; align-items:center; gap:1.2rem; }
+  .footer-logos img{ width:60px; height:auto; }
+
+  /* Chips / small section headers */
+  .h-chip{
+    display:inline-block; background:#e8f4ff; border:1px solid #cfe4ff;
+    padding:4px 10px; border-radius:8px; font-weight:600; font-size:1.05rem;
+    margin:.25rem 0 .5rem 0;
+  }
+  .meta-paragraph{ color:#333; font-size:0.95rem; line-height:1.55; margin-bottom:.6rem; font-weight:600; }
+
+  @media (max-width: 900px){
+    .footer{ flex-direction:column; align-items:flex-start; gap:.5rem; }
+    .footer-right{ justify-content:flex-start; }
+  }
+</style>
+""", unsafe_allow_html=True)
 
 
 # =========================
-# HEADER (LOGOS + TITLE)
+# HEADER and Footer Imgs 
 # =========================
-uni_bonn_b64    = safe_b64(st, PATH_UNI_BONN,      HEADER_LOGO_WIDTH)
-eo_africa_b64   = safe_b64(st, PATH_EO_AFRICA,     FOOTER_LOGO_WIDTH)
-detect_b64      = safe_b64(st, PATH_DETECT,        FOOTER_LOGO_WIDTH)
-tra_b64         = safe_b64(st, PATH_TRA,           FOOTER_LOGO_WIDTH)
-igg_b64         = safe_b64(st, PATH_IGG,           FOOTER_LOGO_WIDTH)
-up_diliman_b64  = safe_b64(st, PATH_UPDILIMAN,     FOOTER_LOGO_WIDTH)
-nic_cameron_b64 = safe_b64(st, PATH_NIC_CAMERON,   FOOTER_LOGO_WIDTH)
+uni_bonn_b64      = safe_b64(st, PATH_UNI_BONN,  HEADER_LOGO_WIDTH)
+eo_africa_b64     = safe_b64(st, PATH_EO_AFRICA, FOOTER_LOGO_WIDTH)
+detect_b64        = safe_b64(st, PATH_DETECT,    FOOTER_LOGO_WIDTH)
+tra_b64           = safe_b64(st, PATH_TRA,       FOOTER_LOGO_WIDTH)
+igg_b64           = safe_b64(st, PATH_IGG,           FOOTER_LOGO_WIDTH)
+up_diliman_b64    = safe_b64(st, PATH_UPDILIMAN,     FOOTER_LOGO_WIDTH)
+nic_cameron_b64   = safe_b64(st, PATH_NIC_CAMERON,   FOOTER_LOGO_WIDTH)
+gnss4surfacewater_b64      = safe_b64(st, PATH_GNSS4SW, FOOTER_LOGO_WIDTH)
 
-col_title, _ = st.columns([3, 3], gap="large")
+# =========================
+# Title Bar
+# =========================
+col_title, col_info,col_img = st.columns(3, gap="large")
 with col_title:
-    st.markdown('<h1 class="rpr-title">GNSS4SurfaceWater</h1>', unsafe_allow_html=True)
-
-st.sidebar.title("GNSS4SurfaceWater")
-st.sidebar.markdown(
-    """
-    <div style="font-size:0.95rem; line-height:1.4;">
-        brings together collective GNSS-based water level measurements.
-        This platform provides an open space to share data in surface-water monitoring, particularly using
-        low-cost GNSS Interferometric Reflectometry (GNSS-IR) sensors such as the Raspberry Pi Reflector,
-        GNSS buoys, and other affordable solutions.
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-st.markdown('<div class="separator-line"></div>', unsafe_allow_html=True)
-
-
-# =========================
-# NAVIGATION (BLUE BAR WITH EMOJI ICONS)
-# =========================
-tabs = [
-    ("Home", "🏠 Home"),
-    ("Data", "📈 Data"),
-    ("Publications", "📚 Publications"),
-    ("About", "ℹ️ About"),
-    ("Contact", "✉️ Contact"),
-    ("Upload Data", "⬆️ Upload Data"),
-]
-
-st.markdown('<div class="nav-row">', unsafe_allow_html=True)
-nav_cols = st.columns(len(tabs), gap="small")
-
-for i, (tab_key, label) in enumerate(tabs):
-    key = f"nav_{tab_key.replace(' ', '_')}"
-    is_active = st.session_state.active_tab == tab_key
-
-    with nav_cols[i]:
-        if st.button(label, key=key):
-            st.session_state.active_tab = tab_key
-
-    # Style this button via CSS
-    bg = "#ffcc33" if is_active else "#1d3b72"
-    fg = "#1d3b72" if is_active else "#f2f2f2"
-    hover_bg = "#e6b800" if is_active else "#355c9a"
-
+    st.write("")
+    st.write("")
+    st.write("")
     st.markdown(
         f"""
-        <style>
-        div[data-testid="stButton"][key="{key}"] > button {{
-            background-color: {bg} !important;
-            color: {fg} !important;
-            font-weight: 600 !important;
-            font-size: 0.95rem !important;
-            border-radius: 6px !important;
-            border: none !important;
-            padding: 0.4rem 0.9rem !important;
-        }}
-        div[data-testid="stButton"][key="{key}"] > button:hover {{
-            background-color: {hover_bg} !important;
-        }}
-        </style>
+        <div>
+          <h1 class="rpr-title">GNSS4SurfaceWater</h1>
+        </div>
         """,
-        unsafe_allow_html=True,
+        unsafe_allow_html=True
+    )
+with col_info:
+    st.write("")
+    st.write("")
+    st.write("")
+    st.write("")
+    st.write("")
+    st.markdown(
+            "<span style='color:blue; font-weight:bold;margin-top:20px;'>"
+            "Open and real-time operational sea and inland water level observations from ground-based GNSS sites."
+            "</span>",
+            unsafe_allow_html=True
+        )
+with col_img:
+    st.markdown(
+            f"""
+            <div style="
+                display: flex;
+                justify-content: flex-end;   /* Push image to the right */
+                align-items: flex-start;         /* Align vertically in the middle */
+                height: 100%;
+                padding-right: 10px;
+            ">
+              <img alt="GNSS4SurfaceWater"
+                   src="data:image/png;base64,{gnss4surfacewater_b64}"
+                   style="height:{HEADER_LOGO_WIDTH}px;" />
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    
+# =========================
+# Side Bar
+# =========================
+st.sidebar.title("GNSS4SurfaceWater")
+with st.sidebar:
+    st.markdown(
+        """
+        <div style="font-size:0.95rem; line-height:1.4;">
+            brings together collective GNSS-based water level measurements.
+            This platform provides an open space to share data in surface-water monitoring, particularly using
+            low-cost GNSS Interferometric Reflectometry (GNSS-IR) sensors such as the Raspberry Pi Reflector,
+            GNSS buoys, and other affordable solutions.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    st.write("")
+    st.markdown(
+        """
+        ### Objectives
+        * To provide a service that delivers independent, ground-based GNSS monitoring of current and historical water levels.
+        * To demonstrate and promote the capabilities of GNSS techniques including interferometric reflectometry and GNSS buoys for monitoring water levels.
+        * To encourage the use of affordable GNSS instrumentation, facilitating broader uptake of GNSS-based hydrological monitoring systems.
+        * To highlight projects that use ground-based GNSS for water-level monitoring.
+        """
     )
 
-st.markdown('</div>', unsafe_allow_html=True)
+#=======================================
+# Insert Nav Bar(Yellow) with Tabs
+#=======================================
 
+labels = ["Home", "Data", "Upload Data", "About", "Projects", "Publications", "Contact"]
+tab_home, tab_data, tab_upload, tab_about, tab_projects, tab_pubs, tab_contact = st.tabs(labels)
 
 # =========================
-# DATA LOAD (Remote WebDAV, cached)
+# DATA LOAD (Remote WebDAV)
 # =========================
-@st.cache_data(show_spinner=True)
-def load_stations():
-    remote_items = list_remote_txts()
-    snapshot = remote_snapshot_hash(remote_items)
-    stations_dict = discover_stations(snapshot)
-    return stations_dict
-
-stations = load_stations()
+_remote_items = list_remote_txts()
+_snapshot = remote_snapshot_hash(_remote_items)
+stations = discover_stations(_snapshot)
 
 if not stations:
     st.warning("No station .txt files found in the remote folder.")
     st.stop()
 
 
-# Decide map height: medium (max 600)
-try:
-    map_height = min(int(MAP_HEIGHT_PX), 500)
-except Exception:
-    map_height = 500
-
-
 # =========================
-# CONTENT BY TAB
+# CONTENT (Switching in-page by radio)
 # =========================
 
 #--------------------Home--------------------------
-if st.session_state.active_tab == "Home":
-    with st.spinner("Loading map..."):
-        st_folium(build_map(stations), width="900", height=map_height)
+with tab_home:
+    # Map full width
+    st_folium(build_map(stations), width="100%", height=MAP_HEIGHT_PX)
 
 
 #--------------------Data--------------------------
-elif st.session_state.active_tab == "Data":
+with tab_data:
     left, right = st.columns([1, 4], gap="large")
 
     with left:
@@ -250,11 +261,7 @@ elif st.session_state.active_tab == "Data":
             st.markdown(f"<div class='h-chip'>Station: {site}</div>", unsafe_allow_html=True)
 
             lat, lon = s["lat"], s["lon"]
-            coords = (
-                f"{lat:.4f}, {lon:.4f}"
-                if (lat is not None and lon is not None)
-                else "coordinates unavailable"
-            )
+            coords = f"{lat:.4f}, {lon:.4f}" if (lat is not None and lon is not None) else "coordinates unavailable"
             water_body = s["meta"].get("water_body") or "Rhine"
             sensor = s["meta"].get("sensor_type") or s["meta"].get("sensor") or "the station's sensor"
             start = df_all["DateTime"].min().date()
@@ -275,7 +282,7 @@ elif st.session_state.active_tab == "Data":
                     unsafe_allow_html=True
                 )
 
-            # Space between chart title and plot
+            # Space between any chart title bar and the plot
             st.markdown("<div class='chart-spacer'></div>", unsafe_allow_html=True)
 
             mask = (df_all["DateTime"].dt.date >= from_d) & (df_all["DateTime"].dt.date <= to_d)
@@ -287,6 +294,11 @@ elif st.session_state.active_tab == "Data":
                 axis = alt.Axis(
                     title="Date",
                     format="%b %d",
+                    labelExpr=(
+                        "(month(datum.value) == 0 && date(datum.value) <= 7) "
+                        "? timeFormat(datum.value, '%b %Y') "
+                        ": timeFormat(datum.value, '%b %d')"
+                    ),
                     labelOverlap=True,
                     grid=True,
                 )
@@ -304,7 +316,7 @@ elif st.session_state.active_tab == "Data":
                     alt.Chart(df_range)
                     .mark_point(size=25, color="#1f77b4")
                     .encode(
-                        x=alt.X("DateTime:T", axis=axis),
+                        x=alt.X("DateTime:T", axis=axis, scale=alt.Scale(nice="month")),
                         y=alt.Y(
                             "Value:Q",
                             title="Water level (meters)",
@@ -317,22 +329,28 @@ elif st.session_state.active_tab == "Data":
                         ],
                     )
                     .properties(height=360)
-                ).configure_title(offset=12)
+                ).configure_title(offset=12)  # adds extra gap below an Altair chart title if you set one
                 st.altair_chart(base_chart.interactive(), use_container_width=True)
 
 
 #--------------------Publications--------------------------
-elif st.session_state.active_tab == "Publications":
+with tab_pubs:
     st.header("Publications:")
     st.markdown("""
-- Karegar, M. A., Kusche, J., Geremia‐Nievinski, F., & Larson, K. M. (2022). Raspberry Pi Reflector (RPR): A low‐cost water‐level monitoring system based on GNSS interferometric reflectometry.*Water Resources Research*, 58(12), e2021WR031713.
+- **Karegar, M. A., Kusche, J., Geremia‐Nievinski, F., & Larson, K. M. (2022).**  
+  *Raspberry Pi Reflector (RPR): A low‐cost water‐level monitoring system based on GNSS interferometric reflectometry.*  
+  *Water Resources Research*, **58**(12), e2021WR031713.
 
-- Yap, L., Karegar, M. A., Chen, J., Kusche, J. (2025). GNSS-IR monitoring of coastal and river water levels in Cameroon for Sentinel and SWOT altimetry validation. *AGU Fall Meeting Abstracts*, 2025.
+- **Yap, L., Karegar, M. A., Chen, J., Kusche, J. (2025).**  
+  *GNSS-IR monitoring of coastal and river water levels in Cameroon for Sentinel and SWOT altimetry validation.*  
+  *AGU Fall Meeting Abstracts*, 2025.
 """)
 
 
+
 #--------------------About--------------------------
-elif st.session_state.active_tab == "About":
+with tab_about:
+    # st.header("About:")
     st.write(
         "GNSS-IR was first used in an opportunistic way: environmental variables were extracted from geodetic GNSS reference "
         "stations that were never designed to measure reflected signals. Today, the field has moved from this indirect use toward "
@@ -341,109 +359,57 @@ elif st.session_state.active_tab == "About":
         "antenna orientation and geometry optimized from the start. This marks a shift from simply using reflections when they "
         "happen to occur to intentionally measuring them for hydrological applications."
     )
-    st.markdown(
-        "At the [Institute of Geodesy and Geoinformation at the University of Bonn](https://www.igg.uni-bonn.de), "
-        "an international network of RPR GNSS-IR sensors is operated across a few research projects. GNSS4SurfaceWater serves "
-        "as a platform for sharing water-level time series from these affordable GNSS-IR sensors following open-science hardware "
-        "and software practices and aligned with FAIR principles. The platform visualizes water-level observations from GNSS "
-        "stations and provides interactive tools for exploring time series and metadata. The community is encouraged to contribute "
-        "to this initiative by uploading their own time series in the supported format. For instructions on how to upload data, "
-        "please refer to the Data Upload section."
+    st.write(
+        "At the Institute of Geodesy and Geoinformation at the University of Bonn, an international network of RPR GNSS-IR "
+        "sensors is operated across a few research projects. GNSS4SurfaceWater serves as a platform for sharing water-level "
+        "time series from these affordable GNSS-IR sensors following open-science hardware and software practices and aligned "
+        "with FAIR principles The platform visualizes water-level observations from GNSS stations and provides interactive tools "
+        "for exploring time series and metadata. The community is encouraged to contribute to this initiative by uploading their "
+        "own time series in the supported format. For instructions on how to upload data, please refer to the Data Upload section."
     )
 
 
 #--------------------Contact--------------------------
-elif st.session_state.active_tab == "Contact":
-    st.header("Contact")
-
+with tab_contact:
+    st.header("Contact:")
     st.markdown("""
-**Dr. Makan Karegar**  
-Institute for Geodesy and Geoinformation (IGG)  
+**Institute for Geodesy and Geoinformation (IGG)**  
 Astronomical, Physical and Mathematical Geodesy Group (APMG)  
-University of Bonn  
-
-**Address:** Room 2.003, Nußallee 15, 53115 Bonn, Germany  
+**Address:** Room 2.003, Nußallee 15, 53115, Bonn, Germany.  
 **Tel:** [+49 (0) 228 73-6160](tel:+49228736160)  
 **Email:** [karegar@uni-bonn.de](mailto:karegar@uni-bonn.de)
-    """)
+""")
 
 
 
 #--------------------Upload Data--------------------------
-elif st.session_state.active_tab == "Upload Data":
-    st.header("Upload Data")
+with tab_upload:
+    st.header("Upload Data:")
+    st.info("Upload a CSV or TXT file to preview and (optionally) append to your repository.")
+    upl = st.file_uploader("Choose a CSV/TXT file", type=["csv", "txt"])
+    if upl is not None:
+        try:
+            df = pd.read_csv(upl)
+            st.success("File read as CSV.")
+            st.dataframe(df.head(200), use_container_width=True)
+            st.download_button("Download a copy (CSV)", df.to_csv(index=False).encode(), file_name="uploaded_preview.csv")
+        except Exception:
+            upl.seek(0)
+            text = upl.read().decode("utf-8", errors="ignore")
+            st.success("File read as plain text.")
+            st.code(text[:5000] + ("\n... (truncated)" if len(text) > 5000 else ""))
 
-    st.markdown("""
-    The GNSS4SurfaceWater platform welcomes contributions of GNSS-based water-level time series. To ensure consistency and interoperability, all datasets should follow the **standard GNSS4SurfaceWater text format** described below.
 
-    ### **Notice**
-    All contributed datasets are uploaded **automatically on a regular basis** to the University of Bonn Sciebo cloud storage (**https://uni-bonn.sciebo.de/**).
-
-    To participate in automatic uploads, you need a **Sciebo WebDAV access token**. Please contact **[Makan Karegar](mailto:karegar@uni-bonn.de)** to obtain your personal token.
-
-    ---
-
-    ## **1. File naming convention**
-    All files must follow the naming pattern:
-
-    **`<siteID>_<temporalResolution>.txt`**
-
-    Examples:
-    - `cam4_1h.txt`
-    - `r6gb_30m.txt`
-    - `rpr1_5m.txt`
-
-    ---
-
-    ## **2. Required metadata header**
-    Each file must begin with the following metadata lines, each starting with `#` and appearing **exactly in this order**:
-
-    ```
-    # Station: <4-character ID>
-    # Location: <City/Region>
-    # Latitude: <decimal degrees>
-    # Longitude: <decimal degrees>
-    # Sensor Type: <sensor/platform>
-    # Water Body: <river/lake/coast>
-    # Vertical datum: <datum>
-    # Units: <units>
-    # Provider: <institution(s)>
-    # Access Raw Data: <URL or NaN>
-    # GNSS Receiver: <model>
-    # GNSS Antenna: <model>
-    #
-    ```
-
-    ---
-
-    ## **3. Data table format**
-
-    After the metadata header, include a comma-separated table with the columns:
-
-    - `DateTime` — ISO-8601 format (`YYYY-MM-DDThh:mm:ss`)
-    - `Height` — Water level in the specified units
-
-    Example:
-
-    ```
-    DateTime,Height
-    2025-06-01T18:50:18,47.531
-    2025-06-01T20:09:29,47.767
-    2025-06-01T21:44:33,47.801
-    ```
-
-    ---
-
-    ## **4. Automatic upload workflow**
-
-    Once you obtain your token, you can configure your device or server to:
-
-    1. Generate the data file (`*.txt`) in the required format  
-    2. Name it according to the standard convention  
-    3. Use WebDAV to automatically send the file to the GNSS4SurfaceWater cloud directory  
-       at regular intervals (hourly, daily, or real-time)
-    """)
-
+#--------------------Projects--------------------------
+with tab_projects:
+    st.header("Projects:")
+    st.markdown(
+        """
+            * Cameroon Advanced Measurements for Enhanced Observations of Water levels using Affordable GNSS-IR and Sentinel-3&6 Technology (CAMEO-WAGST), ESA, EO AFRICA.
+            * DETECT, DFG.
+            * TRA Sustainable Futures, University of Bonn.
+        """
+    )
 
 # =========================
 # FOOTER
@@ -452,19 +418,28 @@ st.write("---")
 st.markdown(
     f"""
     <div class="footer">
-      <div class="footer-logos">
-        {'<img alt="University of Bonn" src="data:image/png;base64,' + uni_bonn_b64 + '"/>' if uni_bonn_b64 else ''}
-        {'<img alt="IGG" src="data:image/png;base64,' + igg_b64 + '"/>' if igg_b64 else ''}
+      <div class="footer-left">
+        <div class="footer-logos">
+          {'<img alt="University of Bonn" src="data:image/png;base64,' + uni_bonn_b64 + '"/>' if uni_bonn_b64 else ''}
+          {'<img alt="IGG" src="data:image/png;base64,' + igg_b64 + '"/>' if igg_b64 else ''}
+        </div>
       </div>
-      <div class="footer-logos">
-        {'<img alt="NIC Cameron" src="data:image/png;base64,' + nic_cameron_b64 + '"/>' if nic_cameron_b64 else ''}
-        {'<img alt="UP Diliman" src="data:image/png;base64,' + up_diliman_b64 + '"/>' if up_diliman_b64 else ''}
-        {'<img alt="EO Africa" src="data:image/png;base64,' + eo_africa_b64 + '"/>' if eo_africa_b64 else ''}
-        {'<img alt="DETECT" src="data:image/png;base64,' + detect_b64 + '"/>' if detect_b64 else ''}
-        {'<img alt="TRA Sustainable Futures" src="data:image/png;base64,' + tra_b64 + '"/>' if tra_b64 else ''}
+      <div class="footer-right">
+        <div class="footer-logos">
+          {'<img alt="NIC Cameron" src="data:image/png;base64,' + nic_cameron_b64 + '"/>' if nic_cameron_b64 else ''}
+          {'<img alt="UP Diliman" src="data:image/png;base64,' + up_diliman_b64 + '"/>' if up_diliman_b64 else ''}
+          {'<img alt="EO Africa" src="data:image/png;base64,' + eo_africa_b64 + '"/>' if eo_africa_b64 else ''}
+          {'<img alt="DETECT" src="data:image/png;base64,' + detect_b64 + '"/>' if detect_b64 else ''}
+          {'<img alt="TRA Sustainable Futures" src="data:image/png;base64,' + tra_b64 + '"/>' if tra_b64 else ''}
+        </div>
       </div>
     </div>
     """,
     unsafe_allow_html=True
 )
+
+
+
+
+
 
