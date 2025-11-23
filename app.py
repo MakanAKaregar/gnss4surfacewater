@@ -219,14 +219,12 @@ if not stations:
 # =========================
 
 #--------------------Home--------------------------
-# if st.session_state.active_tab == "Home":
 with tab_home:
     # Map full width
     st_folium(build_map(stations), width="100%", height=MAP_HEIGHT_PX)
 
 
 #--------------------Data--------------------------
-# elif st.session_state.active_tab == "Data":
 with tab_data:
     left, right = st.columns([1, 4], gap="large")
 
@@ -336,7 +334,6 @@ with tab_data:
 
 
 #--------------------Publications--------------------------
-# elif st.session_state.active_tab == "Publications":
 with tab_pubs:
     st.header("Publications:")
     st.markdown("""
@@ -352,7 +349,6 @@ with tab_pubs:
 
 
 #--------------------About--------------------------
-# elif st.session_state.active_tab == "About":
 with tab_about:
     # st.header("About:")
     st.write(
@@ -374,7 +370,6 @@ with tab_about:
 
 
 #--------------------Contact--------------------------
-# elif st.session_state.active_tab == "Contact":
 with tab_contact:
     st.header("Contact:")
     st.markdown("""
@@ -389,7 +384,6 @@ Astronomical, Physical and Mathematical Geodesy Group (APMG)
 
 #--------------------Upload Data--------------------------
 with tab_upload:
-# elif st.session_state.active_tab == "Upload Data":
     st.header("Upload Data:")
     st.info("Upload a CSV or TXT file to preview and (optionally) append to your repository.")
     upl = st.file_uploader("Choose a CSV/TXT file", type=["csv", "txt"])
@@ -407,7 +401,6 @@ with tab_upload:
 
 
 #--------------------Projects--------------------------
-# elif st.session_state.active_tab == "Projects":
 with tab_projects:
     st.header("Projects:")
     st.markdown(
