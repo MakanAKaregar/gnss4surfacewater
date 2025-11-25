@@ -6,7 +6,7 @@ from streamlit_folium import st_folium
 from config import (
     PAGE_TITLE, PAGE_LAYOUT,
     PATH_UNI_BONN, PATH_EO_AFRICA, PATH_DETECT, PATH_TRA,
-    PATH_IGG, PATH_UPDILIMAN, PATH_NIC_CAMERON,PATH_GNSS4SW,
+    PATH_IGG, PATH_UPDILIMAN, PATH_NIC_CAMERON, PATH_GNSS4SW,
     HEADER_LOGO_WIDTH, FOOTER_LOGO_WIDTH,
     MAP_HEIGHT_PX
 )
@@ -65,19 +65,19 @@ st.markdown("""
 .rpr-title {
     font-size: 2.5rem;
     font-weight: 800;
-    color: #ffffff !important;           /* white fill, force override */
-    -webkit-text-stroke: 0.3px #1d3b72;    /* dark blue outline */
+    color: #ffffff !important;
+    -webkit-text-stroke: 0.3px #1d3b72;
     text-shadow:
         0 0 2px #1d3b72,
-        0 0 4px #1d3b72;                 /* subtle glow */
+        0 0 4px #1d3b72;
     margin: 0;
     padding: 0;
+    white-space: nowrap;   /* prevent text from splitting into two lines */
 }
 </style>
 """, unsafe_allow_html=True)
 
-
-#---------------------------Global css for Header & Footer--------------------------
+#--------------------------- Global css for Header & Footer --------------------------
 st.markdown("""
 <style>
   .block-container { padding-top: 0; padding-bottom: 0; }
@@ -109,6 +109,89 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# ---------- MOBILE-RESPONSIVE CSS ----------
+# This block makes the layout work nicely on phones and small tablets.
+st.markdown("""
+<style>
+@media (max-width: 768px){
+
+  /* Reduce horizontal padding on mobile */
+  .block-container {
+      padding-left: 0.7rem !important;
+      padding-right: 0.7rem !important;
+  }
+
+  /* Stack Streamlit columns vertically */
+  .row-widget.stHorizontalBlock, 
+  .row-widget.stColumns {
+      flex-direction: column !important;
+      gap: 0.6rem !important;
+  }
+
+  /* Title adjustments */
+  .rpr-title {
+      font-size: 1.7rem !important;
+      text-align: center !important;
+      white-space: normal !important;
+  }
+
+  /* Sidebar text size */
+  section[data-testid="stSidebar"] {
+      font-size: 0.9rem !important;
+  }
+
+  /* Make tab bar horizontally scrollable on small screens */
+  .stTabs [data-baseweb="tab-list"] {
+      justify-content: flex-start;
+      overflow-x: auto !important;
+      padding-bottom: 6px !important;
+  }
+  .stTabs [data-baseweb="tab"] {
+      font-size: 0.85rem !important;
+      padding: 0.25rem 0.6rem !important;
+      white-space: nowrap;
+  }
+
+  /* Logos smaller on mobile */
+  .footer-logos img{
+      width: 45px !important;
+  }
+
+  /* Meta text a bit smaller */
+  .meta-paragraph{
+      font-size: 0.9rem !important;
+  }
+
+  /* Slightly smaller spacer above charts */
+  .chart-spacer{
+      height: 8px !important;
+  }
+
+  /* Folium map height less tall on small screens */
+  .folium-map, .st-emotion-cache-1s8y8k0, iframe[title^="st.iframe"] {
+      max-height: 360px !important;
+  }
+
+  /* Header image responsive */
+  img[alt="GNSS4SurfaceWater"] {
+      max-width: 140px !important;
+      height: auto !important;
+  }
+}
+</style>
+""", unsafe_allow_html=True)
+
+# Small helper: ensure header columns also stack on narrow screens
+st.markdown("""
+<style>
+@media (max-width: 768px){
+  .row-widget.stColumns {
+      flex-direction: column !important;
+  }
+}
+</style>
+""", unsafe_allow_html=True)
+
 
 # =========================
 # HEADER and Footer Imgs 
@@ -120,18 +203,18 @@ tra_b64           = safe_b64(st, PATH_TRA,       FOOTER_LOGO_WIDTH)
 igg_b64           = safe_b64(st, PATH_IGG,           FOOTER_LOGO_WIDTH)
 up_diliman_b64    = safe_b64(st, PATH_UPDILIMAN,     FOOTER_LOGO_WIDTH)
 nic_cameron_b64   = safe_b64(st, PATH_NIC_CAMERON,   FOOTER_LOGO_WIDTH)
-gnss4surfacewater_b64      = safe_b64(st, PATH_GNSS4SW, FOOTER_LOGO_WIDTH)
+gnss4surfacewater_b64 = safe_b64(st, PATH_GNSS4SW, FOOTER_LOGO_WIDTH)
 
 # =========================
 # Title Bar
 # =========================
-col_title, col_info,col_img = st.columns(3, gap="large")
+col_title, col_info, col_img = st.columns(3, gap="large")
 with col_title:
     st.write("")
     st.write("")
     st.write("")
     st.markdown(
-        f"""
+        """
         <div>
           <h1 class="rpr-title">GNSS4SurfaceWater</h1>
         </div>
@@ -145,55 +228,61 @@ with col_info:
     st.write("")
     st.write("")
     st.markdown(
-            "<span style='color:blue; font-weight:bold;margin-top:20px;'>"
-            "Open and real-time operational sea and inland water level observations from ground-based GNSS sites."
-            "</span>",
-            unsafe_allow_html=True
-        )
+        "<span style='color:blue; font-weight:800; font-size:1.25rem; line-height:1.4;'>"
+        "Open and real-time operational sea and inland water level observations from ground-based GNSS sites."
+        "</span>",
+        unsafe_allow_html=True
+    )
 with col_img:
     st.markdown(
-            f"""
-            <div style="
-                display: flex;
-                justify-content: flex-end;   /* Push image to the right */
-                align-items: flex-start;         /* Align vertically in the middle */
-                height: 100%;
-                padding-right: 10px;
-            ">
-              <img alt="GNSS4SurfaceWater"
-                   src="data:image/png;base64,{gnss4surfacewater_b64}"
-                   style="height:{HEADER_LOGO_WIDTH}px;" />
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        f"""
+        <div style="
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-start;
+            height: 100%;
+            padding-right: 10px;
+        ">
+          <img alt="GNSS4SurfaceWater"
+               src="data:image/png;base64,{gnss4surfacewater_b64}"
+               style="height:{HEADER_LOGO_WIDTH}px;" />
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     
 # =========================
 # Side Bar
 # =========================
 st.sidebar.title("GNSS4SurfaceWater")
+
 with st.sidebar:
     st.markdown(
         """
         <div style="font-size:0.95rem; line-height:1.4;">
-            brings together collective GNSS-based water level measurements.
-            This platform provides an open space to share data in surface-water monitoring, particularly using
-            low-cost GNSS Interferometric Reflectometry (GNSS-IR) sensors such as the Raspberry Pi Reflector,
-            GNSS buoys, and other affordable solutions.
+            GNSS4SurfaceWater brings together community-driven GNSS-based water-level measurements.
+            The platform offers an open space for sharing data related to surface-water monitoring, with a
+            particular focus on low-cost GNSS Interferometric Reflectometry (GNSS-IR) sensors such as the
+            Raspberry Pi Reflector (RPR), GNSS buoys, and other affordable solutions.
         </div>
         """,
         unsafe_allow_html=True
     )
+
     st.write("")
+
     st.markdown(
         """
         ### Objectives
-        * To provide a service that delivers independent, ground-based GNSS monitoring of current and historical water levels.
-        * To demonstrate and promote the capabilities of GNSS techniques including interferometric reflectometry and GNSS buoys for monitoring water levels.
-        * To encourage the use of affordable GNSS instrumentation, facilitating broader uptake of GNSS-based hydrological monitoring systems.
-        * To highlight projects that use ground-based GNSS for water-level monitoring.
-        """
+        * To provide an independent, ground-based service for monitoring current and historical water levels using GNSS.
+        * To demonstrate and promote the capabilities of GNSS techniques—including interferometric reflectometry and GNSS buoys—for hydrological applications.
+        * To support the use of affordable GNSS instrumentation and encourage broader adoption of GNSS-based monitoring systems.
+        * To highlight ongoing projects that use ground-based GNSS for water-level observation.
+        * <span style='color:#d9534f; font-weight:600;'>This platform is offered on a best-effort basis for scientific purposes only and no liability of any kind can be assumed.</span>
+        """,
+        unsafe_allow_html=True
     )
+
 
 #=======================================
 # Insert Nav Bar(Yellow) with Tabs
@@ -215,12 +304,12 @@ if not stations:
 
 
 # =========================
-# CONTENT (Switching in-page by radio)
+# CONTENT
 # =========================
 
 #--------------------Home--------------------------
 with tab_home:
-    # Map full width
+    # Map full width; height controlled in CSS for mobile
     st_folium(build_map(stations), width="100%", height=MAP_HEIGHT_PX)
 
 
@@ -329,7 +418,7 @@ with tab_data:
                         ],
                     )
                     .properties(height=360)
-                ).configure_title(offset=12)  # adds extra gap below an Altair chart title if you set one
+                ).configure_title(offset=12)
                 st.altair_chart(base_chart.interactive(), use_container_width=True)
 
 
@@ -337,77 +426,130 @@ with tab_data:
 with tab_pubs:
     st.header("Publications:")
     st.markdown("""
-- **Karegar, M. A., Kusche, J., Geremia‐Nievinski, F., & Larson, K. M. (2022).**  
-  *Raspberry Pi Reflector (RPR): A low‐cost water‐level monitoring system based on GNSS interferometric reflectometry.*  
-  *Water Resources Research*, **58**(12), e2021WR031713.
+- Karegar, M. A., Kusche, J., Geremia‐Nievinski, F., & Larson, K. M. (2022). Raspberry Pi Reflector (RPR): A low‐cost water‐level monitoring system based on GNSS interferometric reflectometry. *Water Resources Research*, **58**(12), e2021WR031713.
 
-- **Yap, L., Karegar, M. A., Chen, J., Kusche, J. (2025).**  
-  *GNSS-IR monitoring of coastal and river water levels in Cameroon for Sentinel and SWOT altimetry validation.*  
-  *AGU Fall Meeting Abstracts*, 2025.
+- Yap, L., Karegar, M. A., Chen, J., Kusche, J. (2025). GNSS-IR monitoring of coastal and river water levels in Cameroon for Sentinel and SWOT altimetry validation. *AGU Fall Meeting Abstracts*, 2025.
 """)
-
-
 
 #--------------------About--------------------------
 with tab_about:
-    # st.header("About:")
+
     st.write(
-        "GNSS-IR was first used in an opportunistic way: environmental variables were extracted from geodetic GNSS reference "
-        "stations that were never designed to measure reflected signals. Today, the field has moved from this indirect use toward "
-        "purpose-built, low-cost GNSS-IR sensing. Affordable sensors such as the Raspberry Pi Reflector (RPR) and other GNSS-"
-        "IR devices are now specifically designed and positioned to observe water surfaces under controlled conditions with the "
-        "antenna orientation and geometry optimized from the start. This marks a shift from simply using reflections when they "
-        "happen to occur to intentionally measuring them for hydrological applications."
-    )
-    st.write(
-        "At the Institute of Geodesy and Geoinformation at the University of Bonn, an international network of RPR GNSS-IR "
-        "sensors is operated across a few research projects. GNSS4SurfaceWater serves as a platform for sharing water-level "
-        "time series from these affordable GNSS-IR sensors following open-science hardware and software practices and aligned "
-        "with FAIR principles The platform visualizes water-level observations from GNSS stations and provides interactive tools "
-        "for exploring time series and metadata. The community is encouraged to contribute to this initiative by uploading their "
-        "own time series in the supported format. For instructions on how to upload data, please refer to the Data Upload section."
+        "GNSS Interferometric Reflectometry (GNSS-IR) was originally applied in an opportunistic manner: environmental "
+        "information was extracted from geodetic GNSS reference stations that were never designed to record reflected signals. "
+        "Over time, the field has evolved from this indirect use toward purpose-built, low-cost GNSS-IR instrumentation. "
+        "Affordable systems such as the Raspberry Pi Reflector (RPR) and other GNSS-IR devices are now specifically designed "
+        "and positioned to observe water surfaces with optimized antenna geometry and controlled viewing conditions. This shift "
+        "marks a transition from merely detecting reflections when they happened to occur, to intentionally measuring them for "
+        "hydrological and environmental applications."
     )
 
+    st.write(
+        "At the Institute of Geodesy and Geoinformation (IGG) at the University of Bonn, an international network of RPR "
+        "GNSS-IR sensors is operated across several research projects. GNSS4SurfaceWater provides a platform for sharing "
+        "water-level time series from affordable GNSS-IR sensors following open-science hardware and software "
+        "principles. The platform visualizes ground-based GNSS water-level observations and is "
+        "interactive tools for exploring time series, metadata and station characteristics. The community is encouraged to "
+        "contribute by uploading their own datasets in the supported format. Instructions for uploading data can be found in the "
+        "Upload Data section."
+    )
+
+    st.markdown(
+        """
+        <p style="color:#d9534f; font-weight:600; margin-top:0.8rem;">
+        GNSS4SurfaceWater acknowledges funding from the TRA Sustainable Futures: Technology and Innovation for Sustainable Futures
+        at the University of Bonn, the ESA EO Africa program, and the Collaborative Research Centre CRC 1502.
+        </p>
+        """,
+        unsafe_allow_html=True
+    )
 
 #--------------------Contact--------------------------
 with tab_contact:
     st.header("Contact:")
     st.markdown("""
-**Institute for Geodesy and Geoinformation (IGG)**  
+Institute for Geodesy and Geoinformation (IGG)  
 Astronomical, Physical and Mathematical Geodesy Group (APMG)  
-**Address:** Room 2.003, Nußallee 15, 53115, Bonn, Germany.  
+University of Bonn  
+**Address:** Room 2.003, Nußallee 15, 53115 Bonn, Germany  
 **Tel:** [+49 (0) 228 73-6160](tel:+49228736160)  
 **Email:** [karegar@uni-bonn.de](mailto:karegar@uni-bonn.de)
-""")
-
-
+    """)
 
 #--------------------Upload Data--------------------------
 with tab_upload:
-    st.header("Upload Data:")
-    st.info("Upload a CSV or TXT file to preview and (optionally) append to your repository.")
-    upl = st.file_uploader("Choose a CSV/TXT file", type=["csv", "txt"])
-    if upl is not None:
-        try:
-            df = pd.read_csv(upl)
-            st.success("File read as CSV.")
-            st.dataframe(df.head(200), use_container_width=True)
-            st.download_button("Download a copy (CSV)", df.to_csv(index=False).encode(), file_name="uploaded_preview.csv")
-        except Exception:
-            upl.seek(0)
-            text = upl.read().decode("utf-8", errors="ignore")
-            st.success("File read as plain text.")
-            st.code(text[:5000] + ("\n... (truncated)" if len(text) > 5000 else ""))
+    st.header("Upload Data")
 
+    st.markdown("""
+The GNSS4SurfaceWater platform welcomes contributions of GNSS-based water-level time series.  
+To keep everything consistent and easy to use, all datasets should follow the standard GNSS4SurfaceWater text format described below.
+
+All contributed datasets can be uploaded automatically and on a regular basis to the University of Bonn Sciebo cloud storage (**https://uni-bonn.sciebo.de/**).
+
+To participate in automatic uploads, you should request a **Sciebo WebDAV access token**. Please contact **[Makan Karegar](mailto:karegar@uni-bonn.de)** to obtain your personal token.
+
+---
+
+### 1. File naming convention
+All files should follow the naming pattern:
+
+**`<siteID>_<temporalResolution>.txt`**
+
+Examples:
+- `cam4_1h.txt`
+- `r6gb_2h.txt`
+- `rpr1_6h.txt`
+
+---
+
+### 2. Required metadata header
+Each file should begin with the following metadata lines and each line starts with `#` and appears exactly in this order:
+
+    # Station: <4-character ID>
+    # Location: <City/Region>
+    # Latitude: <decimal degrees>
+    # Longitude: <decimal degrees>
+    # Sensor Type: <sensor/platform>
+    # Water Body: <river/lake/coast>
+    # Vertical datum: <datum>
+    # Units: <units>
+    # Provider: <institution(s)>
+    # Access Raw Data: <URL or NaN>
+    # GNSS Receiver: <model>
+    # GNSS Antenna: <model>
+    
+    
+### **3. Data table format** 
+After the metadata header, include a comma-separated table with the columns: 
+- DateTime — ISO-8601 format (YYYY-MM-DDThh:mm:ss) 
+- Height — Water level in the specified units Example:
+
+Examples:
+
+   `DateTime, Height`
+      
+   `2025-06-01T18:50:18,47.531`
+   
+   `2025-06-01T20:09:29,47.767`
+   
+   `2025-06-01T21:44:33,47.801`
+
+### **4. Automatic upload workflow** 
+
+Once you obtain your token, you can configure your server to: 
+1. Generate the data file (*.txt) in the required format 
+2. Name it according to the standard convention 
+3. Use WebDAV to automatically send the file to the GNSS4SurfaceWater cloud directory at daily intervals 
+""")
 
 #--------------------Projects--------------------------
 with tab_projects:
     st.header("Projects:")
     st.markdown(
         """
-            * Cameroon Advanced Measurements for Enhanced Observations of Water levels using Affordable GNSS-IR and Sentinel-3&6 Technology (CAMEO-WAGST), ESA, EO AFRICA.
-            * DETECT, DFG.
-            * TRA Sustainable Futures, University of Bonn.
+            * Cameroon Advanced Measurements for Enhanced Observations of Water levels using Affordable GNSS-IR and Sentinel-3&6 Technology [(CAMEO-WAGST)](https://www.eoafrica-rd.org/research/research-projects-2024-2026/#proposal_8), ESA, EO AFRICA.
+            * Collaborative Research Centre CRC1502 [DETECT](https://sfb1502.de/), DFG. 
+            * [TRA Sustainable Futures](https://www.uni-bonn.de/en/research-and-teaching/research-profile/transdisciplinary-research-areas/tra-6-sustainable-futures/members-directory/makan-karegar): Technology and Innovation for Sustainable Futures, University of Bonn.
         """
     )
 
@@ -437,9 +579,4 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
-
-
-
-
 
