@@ -20,40 +20,112 @@ def popup_html_for(sid: str, s: dict) -> str:
     chart_b64 = s.get("chart_b64", "")
 
     def row(label, value):
-        if value in ("", None): return ""
-        return f"<div style='margin:2px 0;'><span style='font-weight:700'>{label}:</span> <span style='font-weight:400'>{value}</span></div>"
+        if value in ("", None):
+            return ""
+        return (
+            "<div style='margin:2px 0;'>"
+            f"<span style='font-weight:700'>{label}:</span> "
+            f"<span style='font-weight:400'>{value}</span>"
+            "</div>"
+        )
 
-    coords = f"{lat:.4f}, {lon:.4f}" if (lat is not None and lon is not None) else ""
+    def _fmt_val(v):
+        if v is None:
+            return "n/a"
+        try:
+            return f"{float(v):.3f}"
+        except Exception:
+            return str(v)
+
+    coords = f"{lat:.4f}, {lon:.4f}" if (lat and lon) else ""
     location_line = f"{water_body} ({location})".strip() if water_body else (location or "")
     coverage = f"{cov_min} → {cov_max} ({npts} pts)" if (cov_min != "-" and cov_max != "-") else ""
 
+    # ---------------- Chart block ----------------
     chart_block = ""
-    toggle_link = ""
+    toggle_chart_link = ""
     if chart_b64:
         chart_block = f"""
-        <div id="chart-{sid}" style="display:none; margin-top:8px;">
-          <img src="data:image/png;base64,{chart_b64}" style="width:100%; height:auto; border-radius:6px;"/>
-        </div>"""
-        toggle_link = f"""
+        <div id="chart-{sid}" style="display:none; margin-top:6px;">
+          <img src="data:image/png;base64,{chart_b64}"
+               style="width:100%; height:auto; border-radius:6px;"/>
+        </div>
+        """
+        toggle_chart_link = f"""
         <a href="#" onclick="
           var el = document.getElementById('chart-{sid}');
           var card = document.getElementById('card-{sid}');
           if(el.style.display==='none'){{ el.style.display='block'; card.style.maxWidth='680px'; }}
           else {{ el.style.display='none'; card.style.maxWidth='440px'; }}
-          return false;" 
-          style="text-decoration:none; font-weight:600;">View chart →</a>
+          return false;"
+          style="font-weight:600; text-decoration:none;">
+          View chart →
+        </a>
         """
 
+    # ---------------- Statistics block ----------------
+    stats = s.get("stats") or {}
+    stats_block = ""
+    toggle_stats_link = ""
+
+    if stats:
+        last_value = stats.get("last_value")
+        last_time  = stats.get("last_time")
+        last_time_str = last_time.strftime("%Y-%m-%d %H:%M") if last_time else "n/a"
+
+        stats_block = f"""
+        <div id="stats-{sid}" style="display:none; margin-top:6px; font-size:12px; line-height:1.4;">
+          <h4 style="margin:4px 0;">Water-Level Statistics</h4>
+
+          <p style="margin:2px 0;">
+            <b>Entire data record:</b><br/>
+            Lowest water level: {_fmt_val(stats.get('record_min'))} {units}<br/>
+            Highest water level: {_fmt_val(stats.get('record_max'))} {units}
+          </p>
+
+          <p style="margin:2px 0;">
+            <b>Last 12 months:</b><br/>
+            Lowest: {_fmt_val(stats.get('last12_min'))} {units}<br/>
+            Highest: {_fmt_val(stats.get('last12_max'))} {units}
+          </p>
+
+          <p style="margin:2px 0;">
+            <b>Last 30 days:</b><br/>
+            Lowest: {_fmt_val(stats.get('last30_min'))} {units}<br/>
+            Highest: {_fmt_val(stats.get('last30_max'))} {units}
+          </p>
+
+          <p style="margin:2px 0;">
+            <b>Most recent valid value:</b><br/>
+            Last observation: {_fmt_val(last_value)} {units} on {last_time_str}
+          </p>
+        </div>
+        """
+
+        toggle_stats_link = f"""
+        <a href="#" onclick="
+          var el = document.getElementById('stats-{sid}');
+          if(el.style.display==='none') el.style.display='block';
+          else el.style.display='none';
+          return false;"
+          style="font-weight:600; text-decoration:none;">
+          View water-level statistics →
+        </a>
+        """
+
+    # ---------------- Final HTML ----------------
     html = f"""
     <div id="wrap-{sid}" style="width:700px;">
       <div id="card-{sid}" data-sid="{sid}" style="
           font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
           font-size: 13px; line-height: 1.4; color:#222;
-          width:auto; max-width:680px; margin:0;">
-        <div id="scroll-{sid}" style="max-height:320px; overflow-y:auto; padding-right:6px;">
+          width:auto; max-width:680px;">
+        <div style="max-height:320px; overflow-y:auto; padding-right:6px;">
+
           <div style="font-weight:700; margin-bottom:6px;">
              Station: <span style="font-weight:400">{sid}</span>
           </div>
+
           {row('Water body', water_body)}
           {row('Location', location_line)}
           {row('Lat., Long. (deg.)', coords)}
@@ -63,21 +135,38 @@ def popup_html_for(sid: str, s: dict) -> str:
           {row('GNSS antenna', gnss_antenna)}
           {row('Coverage', coverage)}
 
-          <!-- Add the link before the chart -->
-          <div style="margin-top:8px;">
+          <!-- RAW DATA LINK (unchanged) -->
+          <div style="margin:6px 0;">
             <a href="javascript:void(0)"
-              onclick="return false;"
-              style="color:#0066cc; font-weight:600; text-decoration:none; cursor:pointer;">
-              Link to raw data →
+               onclick="return false;"
+               style="color:#0066cc; font-weight:600; text-decoration:none;">
+               Link to raw data →
             </a>
           </div>
+
+          <!-- View chart link (line 1) -->
+          <div style="margin:6px 0;">
+            {toggle_chart_link}
+          </div>
+
+          <!-- Chart appears directly below -->
           {chart_block}
-          <div style="margin-top:8px;">{toggle_link}</div>
+
+          <!-- View stats link appears BELOW the chart -->
+          <div style="margin:10px 0 4px 0;">
+            {toggle_stats_link}
+          </div>
+
+          <!-- Stats appear below stats link -->
+          {stats_block}
+
         </div>
       </div>
     </div>
     """
     return html
+
+
 
 def build_map(stations_dict: dict) -> folium.Map:
     # Create base map (OpenStreetMap by default)
